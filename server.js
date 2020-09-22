@@ -12,6 +12,8 @@ client.roles = new Enmap({name: 'Roles'});
 
 client.bans = new Enmap({name: 'Bans'});
 
+client.xp = new Enmap({name: 'Xp'});
+
 fs.readdir("./events/", (err, files) => {
   if (err) return console.error(err);
   files.forEach(file => {

@@ -69,7 +69,7 @@ module.exports = {
       
       await member.send(membed).catch(async (err) => {
         await member.kick()
-        message.channel.send(sembed)
+        return message.channel.send(sembed)
       })
       await member.kick()
       message.channel.send(sembed)

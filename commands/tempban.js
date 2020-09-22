@@ -29,11 +29,9 @@ module.exports = {
       return message.channel.send(embed)
     };
     
-    let member;
+    message.guild.members.fetch()
     
-    message.guild.members.fetch().then(m => {
-      member = message.mentions.members.first() || message.guild.members.cache.get(args[0]) || message.guild.members.cache.find(m => m.displayName.toLowerCase() === args[0].toLowerCase());
-    });
+    let member = message.mentions.members.first() || message.guild.members.cache.get(args[0]) || message.guild.members.cache.find(m => m.displayName.toLowerCase() === args[0].toLowerCase());
  
     if(!member) {
       const embed = new MessageEmbed()
@@ -89,29 +87,31 @@ module.exports = {
     let multipliers;
     let unbanTime = new Date();
     let time = parseInt(args[1].replace('/(s|m|h|d)/i', ''));
+    let curTime = new Date();
     
     if(args[1].includes('s')) {
       multipliers = time * 1000;
       unbanTime.setSeconds(unbanTime.getSeconds()+time)
     };
     if(args[1].includes('m')) {
-      multipliers = time * 1000;
+      multipliers = time * 1000 * 60;
       unbanTime.setMinutes(unbanTime.getMinutes()+time)
     };
     if(args[1].includes('h')) {
-      multipliers = time * 1000;
+      multipliers = time * 1000 * 60 * 60;
       unbanTime.setHours(unbanTime.getHours()+time)
     };
     if(args[1].includes('d')) {
-      multipliers = time * 1000;
+      multipliers = time * 1000 * 60 * 60 * 24;
       unbanTime.setDays(unbanTime.getDays()+time)
     };
         
     let reason = args.slice(2).join(' ');
+    if(!reason) reason = 'No specified reason'
     
     async function tempban() {
       const membed = new MessageEmbed()
-      .addField('Kicked', 'You have been banned from the server')
+      .addField('Banned', 'You have been banned from the server')
       .addField('Reason', reason)
       .addField('Staff', message.member.displayName)
       
@@ -121,28 +121,29 @@ module.exports = {
       .addField('Reason', reason)
       .addField('Staff', message.member.displayName)
       
-      client.bans.ensure(message.author.id, {
-        unbanTime: Date.parse(unbanTime),
-        user: client.users.cache.get(member.id)
+      client.bans.ensure(member.id, {
+        unbanTime: unbanTime-curTime,
+        user: member.id,
+        guild: message.guild.id
       });
+      
+      const timeToBan = Date.parse(unbanTime)-Date.parse(curTime)
       
       await member.send(membed).catch(async (err) => {
         await member.ban()
         client.setTimeout(async () => {
           const bans = await message.guild.fetchBans();
-          const user = bans.filter(sf => sf.user.id === args[0] || sf.user.username.toLowerCase() === args[0].toLowerCase() || sf.user.tag.toLowerCase() === args[0].toLowerCase()).first()
           
-          message.guild.unban(user)
-        }, Date.parse(unbanTime));
+          message.guild.members.unban(member)
+        }, timeToBan);
         return message.channel.send(sembed)
       });
       await member.ban()
       client.setTimeout(async () => {
         const bans = await message.guild.fetchBans();
-        const user = bans.filter(sf => sf.user.id === args[0] || sf.user.username.toLowerCase() === args[0].toLowerCase() || sf.user.tag.toLowerCase() === args[0].toLowerCase()).first()
           
-        message.guild.unban(user)
-      }, Date.parse(unbanTime));
+        message.guild.members.unban(member)
+      }, timeToBan);
       message.channel.send(sembed)
     };
     

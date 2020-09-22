@@ -5,7 +5,7 @@ module.exports = {
 	name: 'ping',
 	description: 'Shows bot ping',
   category: 'Info', //Mod  Info  System
-  staffOnly: true,
+  staffOnly: false,
   invisible: false,
 	execute(message, args, client) {
     

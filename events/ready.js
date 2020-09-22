@@ -1,5 +1,5 @@
-module.exports = async (client, message) => {
-  client.verification.keys().forEach(k => {
+module.exports = async (client) => {
+  client.verification.forEach((v, k, e) => {
     const eTime = client.verification.get(k, 'endtime')
     const d = new Date();
     const curTime = `${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}`
@@ -8,7 +8,7 @@ module.exports = async (client, message) => {
     };
   });
   
-  client.bans.keys().forEach(k => {
+  client.bans.forEach((v, k, e) => {
     let unbanTime = client.bans.get(k, 'unbanTime');
     let curTime = new Date();
     curTime = Date.parse(curTime)
@@ -16,8 +16,9 @@ module.exports = async (client, message) => {
     
     if(diff <= 0){
       async function unban() {
-        const user = await client.users.fetch(client.bans.get(k, 'user'))
-        message.guild.unban(user)
+        const user = await client.users.fetch(client.bans.get(k, 'user'));
+        const guild = client.channels.cache.get(client.bans.get(k, 'guild'));
+        guild.members.unban(user)
       };
       unban()
     } else {
@@ -25,7 +26,8 @@ module.exports = async (client, message) => {
       
       client.setTimeout(async() => {
         const user = await client.users.fetch(client.bans.get(k, 'user'));
-        message.guild.unban(user)
+        const guild = client.channels.cache.get(client.bans.get(k, 'guild'));
+        guild.members.unban(user)
       }, client.bans.get(k, 'unbanTime'))
     };
   });

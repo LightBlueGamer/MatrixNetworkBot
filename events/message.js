@@ -4,7 +4,9 @@ module.exports = async (client, message) => {
   
   if(message.channel.id === '756974812668231810'){
     return client.emit('verification', message)
-  }
+  };
+  
+  if(message.channel.type !== 'dm') client.emit('xp', message)
     
 	if(!message.content.startsWith(prefix) || message.author.bot) return;
 

@@ -3,7 +3,7 @@ const {MessageEmbed} = require('discord.js');
 const roles = require('../roles.json')
 
 module.exports = {
-	name: 'testhelp',
+	name: 'help',
 	description: 'List all of my commands or info about a specific command.',
   category: 'Info', //Mod  Info  System
   staffOnly: false,
